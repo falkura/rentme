@@ -141,7 +141,7 @@ def rank(cfg: Config, db: DB | None = None, log=print, force: bool = False, stop
         return []
     ranker = Ranker(
         prefs,
-        model=cfg.ai.get("model", "claude-opus-5-5"),
+        model=cfg.ai.get("model", "claude-sonnet-5-5"),
         effort=cfg.ai.get("effort", "low"),
         batch_size=int(cfg.ai.get("batch_size", 6)),
         api_key=cfg.api_key(),

@@ -136,7 +136,7 @@ def create_app(cfg: Config, access_token: str | None = None) -> FastAPI:
         if not k:
             return {"ok": False, "error": "No key set"}
         try:
-            anthropic.Anthropic(api_key=k).models.retrieve(cfg.ai.get("model", "claude-opus-5-5"))
+            anthropic.Anthropic(api_key=k).models.retrieve(cfg.ai.get("model", "claude-sonnet-5-5"))
             return {"ok": True}
         except anthropic.AuthenticationError:
             return {"ok": False, "error": "Key rejected (401)"}

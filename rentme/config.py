@@ -29,7 +29,7 @@ DEFAULTS: dict[str, Any] = {
     "sources": {"otodom": True, "olx": True, "otodom_location": "", "olx_city_id": 0},
     "scrape": {"db": "rentme.db", "delay": 1.5, "max_details_per_run": 80},
     "ai": {
-        "enabled": True, "model": "claude-opus-5-5", "effort": "low", "chat_effort": "medium",
+        "enabled": True, "model": "claude-sonnet-5-5", "effort": "low", "chat_effort": "medium",
         "batch_size": 6, "max_per_run": 60, "preferences": DEFAULT_PREFERENCES,
         # False: the chat only proposes filter changes (Apply button) unless you explicitly ask it to change them
         "chat_can_edit_filters": False,
@@ -44,7 +44,7 @@ DEFAULTS: dict[str, Any] = {
 
 MODELS = [
     {"id": "claude-opus-5-5", "label": "Claude Opus 5.5 (best quality)"},
-    {"id": "claude-sonnet-5-5", "label": "Claude Sonnet 5.5 (balanced)"},
+    {"id": "claude-sonnet-5-5", "label": "Claude Sonnet 5.5 (balanced, default)"},
     {"id": "claude-haiku-5-5", "label": "Claude Haiku 5.5 (cheapest)"},
 ]
 

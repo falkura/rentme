@@ -77,7 +77,7 @@ def listing_prompt(l: Listing) -> str:
 
 
 class Ranker:
-    def __init__(self, preferences: str, model: str = "claude-opus-5-5", effort: str = "low", batch_size: int = 6,
+    def __init__(self, preferences: str, model: str = "claude-sonnet-5-5", effort: str = "low", batch_size: int = 6,
                  api_key: str | None = None):
         self.client = anthropic.Anthropic(api_key=api_key) if api_key else anthropic.Anthropic()
         self.model = model

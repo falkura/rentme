@@ -639,7 +639,7 @@ class ChatService:
             sess["context"] = ctx_now
 
         client = anthropic.Anthropic(api_key=key)
-        model = self.cfg.ai.get("model", "claude-opus-5-5")
+        model = self.cfg.ai.get("model", "claude-sonnet-5-5")
         system_blocks = [{"type": "text", "text": sess["system"], "cache_control": {"type": "ephemeral"}}]
         steps: list[dict[str, Any]] = []
         self._pending_changes = []
