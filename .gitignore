@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.db
+config.json
+config.toml
+secrets.json
+web/node_modules/
+rentme/static/
+SESSION.md
