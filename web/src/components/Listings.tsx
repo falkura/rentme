@@ -7,12 +7,12 @@ import TagPicker, { type TagState } from "./TagPicker";
 import { Choice, Icon, Sheet, Snackbar, Switch } from "./ui";
 
 type Sort = "score" | "newest" | "price" | "area";
-type StatusFilter = "active" | "new" | "favorite" | "notes" | "rejected" | "all";
+type StatusFilter = "active" | "new" | "favorite" | "notes" | "rejected" | "all" | "gone";
 type Source = "" | "otodom" | "olx";
 type Lookup = { url: string; busy: boolean; error?: string; found?: "existing" | "added"; listing?: Listing };
 
 const STATUS_LABEL: Record<StatusFilter, string> = {
-  active: "Active", new: "New only", favorite: "Favorites", notes: "With notes", rejected: "Rejected", all: "All",
+  active: "Active", new: "New only", favorite: "Favorites", notes: "With notes", rejected: "Rejected", all: "All", gone: "Gone",
 };
 const SOURCE_LABEL: Record<Source, string> = { "": "All sites", otodom: "Otodom", olx: "OLX" };
 const SORT_LABEL: Record<Sort, string> = { score: "Best", newest: "Newest", price: "Cheapest", area: "Largest" };
@@ -37,7 +37,9 @@ function loadSaved(): Saved {
 /** A pasted offer link (otodom/olx) instead of search words */
 const asUrl = (q: string) => (/^https?:\/\/\S*(otodom|olx)\.pl\/\S+$/i.test(q.trim()) ? q.trim() : null);
 
+// "Gone": no longer in the site's results (kept in the db with your status and notes); every other filter shows only listed ones
 const matchesStatus = (l: Listing, s: StatusFilter) =>
+  s === "gone" ? !l.active : !l.active ? false :
   s === "all" ? true : s === "active" ? l.status !== "rejected" : s === "notes" ? !!l.note : l.status === s;
 
 export default function Listings({ meta, reloadToken, onCounts, showNewest }: {
@@ -105,7 +107,7 @@ export default function Listings({ meta, reloadToken, onCounts, showNewest }: {
   });
 
   useEffect(() => {
-    if (all) onCounts({ fresh: all.filter(l => l.status === "new").length, total: all.length });
+    if (all) onCounts({ fresh: all.filter(l => l.active && l.status === "new").length, total: all.filter(l => l.active).length });
   }, [all, onCounts]);
 
   // everything except the status filter: used for the list and for the counts in the status sheet
@@ -185,8 +187,8 @@ export default function Listings({ meta, reloadToken, onCounts, showNewest }: {
 
   const counts = Object.fromEntries((Object.keys(STATUS_LABEL) as StatusFilter[])
     .map(s => [s, base.filter(l => matchesStatus(l, s)).length])) as Record<StatusFilter, number>;
-  const newCount = all.filter(l => l.status === "new").length;
-  const ranked = all.filter(l => l.ai_score != null).length;
+  const newCount = all.filter(l => l.active && l.status === "new").length;
+  const ranked = all.filter(l => l.active && l.ai_score != null).length;
   const closeSheet = () => setSheet("");
 
   return (

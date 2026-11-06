@@ -20,7 +20,7 @@ export const api = {
   setKey: (key: string) => req<KeyStatus>("/api/settings/api-key", { method: "PUT", body: body({ key }) }),
   testKey: () => req<{ ok: boolean; error?: string }>("/api/settings/test-key", { method: "POST" }),
 
-  listings: (includeFiltered: boolean) => req<Listing[]>(`/api/listings?include_filtered=${includeFiltered}`),
+  listings: (includeFiltered: boolean) => req<Listing[]>(`/api/listings?include_filtered=${includeFiltered}&include_inactive=true`),
   listingsByUid: (uids: string[]) => req<Listing[]>(`/api/listings?uids=${encodeURIComponent(uids.join(","))}`),
   detail: (uid: string) => req<{ description: string | null }>(`/api/listings/${encodeURIComponent(uid)}`),
   images: (uid: string) => req<string[]>(`/api/listings/${encodeURIComponent(uid)}/images`),

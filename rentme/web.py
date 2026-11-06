@@ -162,7 +162,7 @@ def create_app(cfg: Config, access_token: str | None = None) -> FastAPI:
             rows = db.rows(" AND ".join(where), tuple(params))
         cards = [row_to_card(r) for r in rows]
         # mark the weaker copy of a flat posted on several platforms
-        cards.sort(key=lambda c: (c["ai_score"] is None, -(c["ai_score"] or 0), c["first_seen"]))
+        cards.sort(key=lambda c: (not c["active"], c["ai_score"] is None, -(c["ai_score"] or 0), c["first_seen"]))
         first: dict[str, str] = {}
         for c in cards:
             fp = c.pop("fingerprint")
