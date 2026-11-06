@@ -100,6 +100,10 @@ export default function ListingCard({ l, tags, onStatus, onNote, view = "short",
   const site = l.source === "olx" ? "OLX" : "Otodom";
   // when the ad was posted on the site; falls back to when rentme first saw it
   const added = ago(l.created_at) ?? ago(l.first_seen);
+  const dates = [
+    l.created_at && !Number.isNaN(Date.parse(l.created_at)) ? `Posted on ${site} ${fullDate(Date.parse(l.created_at))}` : null,
+    `Found by rentme ${fullDate(Date.parse(l.first_seen))}`,
+  ].filter((x): x is string => !!x);
 
   if (stub) {
     return (
@@ -124,16 +128,11 @@ export default function ListingCard({ l, tags, onStatus, onNote, view = "short",
         <div className="body">
           <a className="title" href={l.url} target="_blank" rel="noreferrer">{l.title}</a>
           <div className="badges">
-            {added && (
-              <span className="badge date" title={[
-                l.created_at && !Number.isNaN(Date.parse(l.created_at)) ? `Posted on ${site}: ${fullDate(Date.parse(l.created_at))}` : null,
-                `Found by rentme: ${fullDate(Date.parse(l.first_seen))}`,
-              ].filter(Boolean).join("\n")}>{added}</span>
-            )}
             <span className="badge">{site}</span>
             {l.status === "new" && <span className="badge new">New</span>}
             {!l.active && <span className="badge">Gone</span>}
             {l.added_by_link && <span className="badge" title="You added this one by its link">Added</span>}
+            {added && <span className="posted" title={dates.join("\n")}>{added}</span>}
           </div>
           <div className="price">
             {fmt(l.total_price)} zł{" "}
@@ -221,6 +220,7 @@ export default function ListingCard({ l, tags, onStatus, onNote, view = "short",
 
       {more && (
         <Sheet title={l.title} onClose={() => setMore(false)}>
+          <div className="sheetMeta">{dates.map(d => <span key={d}>{d}</span>)}</div>
           <button className="item" onClick={() => { setMore(false); toggleDesc(); }} disabled={busy === "desc"}>
             <Icon name="text" />{busy === "desc" ? "Loading…" : showDesc ? "Hide description" : "Description"}
           </button>

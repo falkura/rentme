@@ -252,11 +252,12 @@ export default function SettingsPage({ meta, keyStatus, onKeyChange, onSaved, on
       </Field>
     );
 
-    if (page === "prefs") body = (
+    if (page === "prefs") body = <>
       <Field label="In your own words" hint="Every listing is scored against this. Hard requirements, nice-to-haves, things to avoid. A change re-ranks listings on the next update.">
         <textarea className="input" rows={14} value={cfg.ai.preferences} onChange={e => set("ai", { preferences: e.target.value })} />
       </Field>
-    );
+      <RescoreNew dirty={changes > 0} models={meta.models} />
+    </>;
 
     if (page === "memory") body = (
       <Field group label="Rules AI search always follows" hint="Edits apply to open chats from the next message.">
@@ -288,7 +289,6 @@ export default function SettingsPage({ meta, keyStatus, onKeyChange, onSaved, on
         <Field label="Listings per request"><input className="input" type="number" inputMode="numeric" min={1} max={15} value={cfg.ai.batch_size} onChange={e => set("ai", { batch_size: +e.target.value })} /></Field>
         <Field label="Max ranked per update" hint="Cost cap per run."><input className="input" type="number" inputMode="numeric" min={1} value={cfg.ai.max_per_run} onChange={e => set("ai", { max_per_run: +e.target.value })} /></Field>
       </div>
-      <RescoreNew dirty={changes > 0} />
     </>;
 
     if (page === "key") body = (

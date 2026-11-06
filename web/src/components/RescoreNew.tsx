@@ -1,60 +1,80 @@
 import { useState } from "react";
 import { api } from "../api";
+import { Icon, Sheet } from "./ui";
 
-/** Score every "new" listing again from scratch, e.g. after rewriting your preferences. Two steps: count, then confirm. */
-export default function RescoreNew({ dirty }: { dirty: boolean }) {
-  const [info, setInfo] = useState<{ count: number; without_details: number; model: string } | null>(null);
+type Info = { count: number; without_details: number; model: string };
+
+/** Score every "new" listing again from scratch, e.g. after rewriting your preferences.
+ *  A settings row that opens a sheet: it counts first, then you confirm. */
+export default function RescoreNew({ dirty, models = [] }: { dirty: boolean; models?: { id: string; label: string }[] }) {
+  const modelName = (id: string) => models.find(m => m.id === id)?.label.replace(/\s*\(.*\)$/, "") || id;
+  const [open, setOpen] = useState(false);
+  const [info, setInfo] = useState<Info | null>(null);
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [err, setErr] = useState("");
 
-  const ask = async () => {
-    setMsg(null); setBusy(true);
+  const openSheet = async () => {
+    setOpen(true); setInfo(null); setErr("");
+    if (dirty) return;
+    setBusy(true);
     try { setInfo(await api.rescoreNewCount()); }
-    catch (e) { setMsg({ ok: false, text: e instanceof Error ? e.message : String(e) }); }
+    catch (e) { setErr(e instanceof Error ? e.message : String(e)); }
     setBusy(false);
   };
   const go = async () => {
-    setBusy(true);
+    setBusy(true); setErr("");
     try {
       const r = await api.rescoreNew();
       if (r.started) {
         window.dispatchEvent(new Event("rentme:update-started"));
-        setMsg({ ok: true, text: "Started. Progress is in the top bar; you can stop it there." });
+        setOpen(false);
       } else {
-        setMsg({ ok: false, text: "An update is already running. Try again when it finishes." });
+        setErr("An update is already running. Try again when it finishes.");
       }
-      setInfo(null);
     } catch (e) {
-      setMsg({ ok: false, text: e instanceof Error ? e.message : String(e) });
+      setErr(e instanceof Error ? e.message : String(e));
     }
     setBusy(false);
   };
+  const n = info?.count ?? 0;
 
   return (
-    <div className="field rescore">
-      <div className="flabel">Re-review new listings</div>
-      <div className="hint">
-        Scores every listing still marked <b>New</b> again from scratch, ignoring old scores and the per-update cap.
-        Useful after you rewrite what you want.{dirty && <b> Save your settings first: it uses the saved ones.</b>}
+    <>
+      <div className="list flush">
+        <button className="listrow" onClick={openSheet}>
+          <Icon name="refresh" />
+          <span className="txt">Re-review new listings<small>Score everything marked New again</small></span>
+          <Icon name="right" size={18} />
+        </button>
       </div>
-      {info === null ? (
-        <button className="btn sm" disabled={busy} onClick={ask}>{busy ? "Counting…" : "Re-review all new"}</button>
-      ) : info.count === 0 ? (
-        <div className="hint">No new listings to review. <button className="btn ghost sm" onClick={() => setInfo(null)}>OK</button></div>
-      ) : (
-        <div className="confirm">
-          <span>
-            Re-review <b>{info.count}</b> listing{info.count === 1 ? "" : "s"} with {info.model}?
-            {info.without_details > 0 && <> {info.without_details} need their details fetched first.</>}
-            {" "}This uses API credits.
-          </span>
-          <div className="row">
-            <button className="btn sm primary" disabled={busy} onClick={go}>Re-review {info.count}</button>
-            <button className="btn sm ghost" disabled={busy} onClick={() => setInfo(null)}>Cancel</button>
+
+      {open && (
+        <Sheet title="Re-review new listings" onClose={() => setOpen(false)}>
+          <div className="body">
+            {dirty ? (
+              <p className="sheetText">You have unsaved changes. Save your settings first: the re-review uses the saved ones.</p>
+            ) : busy && !info ? (
+              <p className="sheetText muted"><span className="spin" /> Counting…</p>
+            ) : info && n === 0 ? (
+              <p className="sheetText">No listings are marked New right now.</p>
+            ) : info ? (
+              <p className="sheetText">
+                Score the <b>{n}</b> listing{n === 1 ? "" : "s"} marked New again from scratch with <b>{modelName(info.model)}</b>.
+                Old scores are replaced, and the per-update limit doesn't apply.
+                {info.without_details > 0 && <> {info.without_details} need their details downloaded first.</>}
+                <span className="hint"> This uses API credits. Progress shows on the Update button.</span>
+              </p>
+            ) : null}
+            {err && <p className="sheetText err">{err}</p>}
           </div>
-        </div>
+          <div className="foot">
+            <button className="btn" onClick={() => setOpen(false)}>{n > 0 ? "Cancel" : "Close"}</button>
+            <button className="btn primary" disabled={busy || dirty || n === 0} onClick={go}>
+              {n > 0 ? `Re-review ${n}` : "Re-review"}
+            </button>
+          </div>
+        </Sheet>
       )}
-      {msg && <div className={"small " + (msg.ok ? "ok" : "err")}>{msg.text}</div>}
-    </div>
+    </>
   );
 }
