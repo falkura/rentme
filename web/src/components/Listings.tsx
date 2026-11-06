@@ -6,7 +6,7 @@ import ListingCard, { type View } from "./ListingCard";
 import TagPicker, { type TagState } from "./TagPicker";
 import { Choice, Icon, Sheet, Snackbar, Switch } from "./ui";
 
-type Sort = "score" | "newest" | "price" | "ppm" | "area";
+type Sort = "score" | "newest" | "price" | "area";
 type StatusFilter = "active" | "new" | "favorite" | "notes" | "rejected" | "all";
 type Source = "" | "otodom" | "olx";
 type Lookup = { url: string; busy: boolean; error?: string; found?: "existing" | "added"; listing?: Listing };
@@ -15,7 +15,7 @@ const STATUS_LABEL: Record<StatusFilter, string> = {
   active: "Active", new: "New only", favorite: "Favorites", notes: "With notes", rejected: "Rejected", all: "All",
 };
 const SOURCE_LABEL: Record<Source, string> = { "": "All sites", otodom: "Otodom", olx: "OLX" };
-const SORT_LABEL: Record<Sort, string> = { score: "Best", newest: "Newest", price: "Cheapest", ppm: "Cheapest per m²", area: "Largest" };
+const SORT_LABEL: Record<Sort, string> = { score: "Best", newest: "Newest", price: "Cheapest", area: "Largest" };
 
 const DEFAULTS = {
   q: "", minScore: 0, maxPrice: "" as number | "", source: "" as Source, status: "active" as StatusFilter, sort: "score" as Sort,
@@ -26,7 +26,9 @@ const KEY = "rentme.listings.v1";
 function loadSaved(): Saved {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) || "{}");
-    return { ...DEFAULTS, view: "short", ...(s && typeof s === "object" ? s : {}) };
+    const saved: Saved = { ...DEFAULTS, view: "short", ...(s && typeof s === "object" ? s : {}) };
+    if (!(saved.sort in SORT_LABEL)) saved.sort = DEFAULTS.sort;  // e.g. the removed "cheapest per m²"
+    return saved;
   } catch {
     return { ...DEFAULTS, view: "short" };
   }
@@ -134,7 +136,6 @@ export default function Listings({ meta, reloadToken, onCounts, showNewest }: {
       score: l => -(l.ai_score ?? -1),
       newest: l => -Date.parse(l.created_at || l.first_seen),
       price: l => l.total_price ?? 1e9,
-      ppm: l => (l.total_price && l.area_m2 ? l.total_price / l.area_m2 : 1e9),
       area: l => -(l.area_m2 ?? 0),
     };
     return xs.sort((a, b) => key[sort](a) - key[sort](b));

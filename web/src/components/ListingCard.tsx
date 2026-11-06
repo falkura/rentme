@@ -114,7 +114,6 @@ export default function ListingCard({ l, tags, onStatus, onNote, view = "short",
     );
   }
 
-  const ppm = l.total_price && l.area_m2 ? l.total_price / l.area_m2 : null;
   const lineLoc = [place, l.author_type ? AUTHOR[l.author_type] || l.author_type : null, when(l.available_from)].filter(Boolean).join(" · ");
   const ai = l.ai;
 
@@ -140,7 +139,6 @@ export default function ListingCard({ l, tags, onStatus, onNote, view = "short",
           </div>
           <div className="facts">
             <b>{l.area_m2 ?? "?"} m²</b> · <b>{l.rooms ?? "?"} {l.rooms === 1 ? "room" : "rooms"}</b>
-            {ppm ? <> · {fmt(ppm)} zł/m²</> : null}
             {l.deposit ? <> · deposit {fmt(l.deposit)}</> : null}
           </div>
           {lineLoc && <div className="loc">{lineLoc}</div>}
