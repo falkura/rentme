@@ -66,16 +66,18 @@ export function usePullToRefresh(onRefresh: () => Promise<unknown>) {
   return { pull, busy, ready: pull >= THRESHOLD };
 }
 
-/** The round indicator that slides down from under the top bar. */
+/** A quiet strip that opens above the list as you pull: an arrow and one line of text, nothing floating. */
 export function PullIndicator({ pull, busy, ready }: { pull: number; busy: boolean; ready: boolean }) {
-  if (pull <= 0 && !busy) return null;
+  const text = busy ? "Refreshing…" : ready ? "Release to refresh" : "Pull to refresh";
   return (
-    <div className={"ptr" + (ready || busy ? " ready" : "") + (pull === 0 || busy ? "" : " dragging")}
-      style={{ transform: `translate(-50%, ${pull - 44}px)`, opacity: Math.min(1, pull / 40) }}
-      role="status" aria-label={busy ? "Refreshing" : ready ? "Release to refresh" : "Pull to refresh"}>
-      {busy
-        ? <span className="spin" />
-        : <span style={{ transform: `rotate(${(pull / THRESHOLD) * 270}deg)`, display: "grid" }}><Icon name="refresh" size={18} /></span>}
+    <div className={"ptr" + (ready || busy ? " ready" : "") + (pull > 0 && !busy ? " dragging" : "")}
+      style={{ height: pull }} role="status" aria-live="polite" aria-label={pull > 0 || busy ? text : undefined}>
+      {(pull > 0 || busy) && (
+        <span className="ptrIn" style={{ opacity: busy ? 1 : Math.min(1, pull / (THRESHOLD * 0.8)) }}>
+          {busy ? <span className="spin" /> : <span className="ptrArrow"><Icon name="down" size={16} /></span>}
+          {text}
+        </span>
+      )}
     </div>
   );
 }

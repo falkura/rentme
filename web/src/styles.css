@@ -510,12 +510,11 @@ body.typing .savebar { bottom: 0; }
 }
 
 /* pull to refresh */
-.ptr {
-  position: fixed; left: 50%; top: calc(var(--size-appbar) + env(safe-area-inset-top)); z-index: 15;
-  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
-  background: var(--card); color: var(--muted); border: 1px solid var(--line); box-shadow: 0 2px 10px rgb(0 0 0 / .18);
-  transition: transform .2s ease-out, opacity .2s, color .15s;
-}
-.ptr.dragging { transition: color .15s; }
+/* the list moves down with your finger and the strip above it says what will happen */
+.ptr { display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--muted); transition: height .2s ease-out; }
+.ptr.dragging { transition: none; }
 .ptr.ready { color: var(--accent); }
-.ptr .spin { width: 16px; height: 16px; }
+.ptrIn { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 13px; line-height: 18px; white-space: nowrap; }
+.ptrArrow { display: grid; transition: transform .15s ease-out; }
+.ptr.ready .ptrArrow { transform: rotate(180deg); }
+.ptr .spin { width: 14px; height: 14px; }
