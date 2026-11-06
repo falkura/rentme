@@ -8,9 +8,7 @@ written in plain words. Then you go through the results on your phone or compute
 *"3 rooms near the metro, up to 6000 with bills, English description"*.
 
 <p align="center">
-  <img src="docs/screenshots/listings.jpg" width="200" alt="Listings: AI-ranked cards with score, price, rooms and location">
-  <img src="docs/screenshots/ai-search.jpg" width="200" alt="AI search: the chat comparing the best matches">
-  <img src="docs/screenshots/settings.jpg" width="200" alt="Settings grouped into Search, AI, Sources and This device">
+  <img src="docs/screenshots/overview.png" width="720" alt="rentme on a phone: AI-ranked listings, the AI search chat, and Settings">
 </p>
 
 ## Features
